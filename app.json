@@ -33,6 +33,17 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Manrope-Regular.ttf",
+            "./assets/fonts/Manrope-Bold.ttf",
+            "./assets/fonts/Manrope-Medium.ttf",
+            "./assets/fonts/Manrope-Light.ttf"
+          ]
+        }
       ]
     ],
     "experiments": {
