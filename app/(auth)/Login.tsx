@@ -1,22 +1,55 @@
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import * as secureStore from 'expo-secure-store';
 import React, { useState } from 'react';
 import {
+  Alert,
   ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   Text,
   TouchableWithoutFeedback,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import api from '../api/api';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import GoogleApi from '../googleApi';
 import UseFont from '../hooks/useFont';
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const {promptAsync, request} = GoogleApi(async (idToken) => {
+    try {
+      const res = await api.post('/oauth-login', {id_token: idToken})
+      const data = res.data
+      console.log("Login berhasil:", data)
+    } catch (error: any) {
+      Alert.alert('Gagal', error.response?.data?.error || 'Server error');
+    }
+  });
+  const router = useRouter();
+  const handleLogin = async () => {
+    try {
+      const res = await api.post('/login', {
+        email,
+        password,
+      });
+      const data = res.data;
+      if (data.token) {
+        await secureStore.setItemAsync('jwt_token', data.token);
+        router.replace('/(tabs)/Index');
+      } else {
+        Alert.alert('Login gagal', 'Silakan coba lagi');
+      }
+    } catch (error: any) {
+      Alert.alert('Gagal', error.response?.data?.error || 'Server error');
+    }
+  }
+
 
   return (
     <UseFont>
@@ -83,7 +116,7 @@ const Login = () => {
               <View className="mt-[12px] items-center px-[24px] pb-[30px]">
                 <Button
                   title="Login"
-                  onPress={() => { }}
+                  onPress={() => handleLogin()}
                   styleButton="bg-[#C4E703]"
                   icon={{}}
                 />
@@ -101,7 +134,8 @@ const Login = () => {
 
                 <Button
                   title="Login with Google"
-                  onPress={() => { }}
+                  onPress={() => promptAsync()}
+                  disabled={!request}
                   styleButton="border border-gray-400 mb-[17px]"
                   icon={require('../../assets/images/Google.png')}
                 />

@@ -12,7 +12,11 @@ module.exports = {
         manrope_light: ["Manrope-Light"],
         manrope_medium: ["Manrope-Medium"],
         manrope_bold: ["Manrope-Bold"],
+      },
+      colors: {
+        primary: '#C4E703'
       }
+      
     },
   },
   plugins: [],

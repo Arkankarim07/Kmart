@@ -2,6 +2,7 @@
   "expo": {
     "name": "kmart",
     "slug": "kmart",
+    "owner": "kannkrm",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -12,6 +13,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.arkan.kmart",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -44,10 +46,17 @@
             "./assets/fonts/Manrope-Light.ttf"
           ]
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a06a0abc-7573-4f1f-a13a-b28826ad095f"
+      }
     }
   }
 }

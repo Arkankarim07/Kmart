@@ -1,6 +1,8 @@
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import * as secureStore from 'expo-secure-store';
 import React, { useState } from 'react';
 import {
+    Alert,
     ImageBackground,
     Keyboard,
     KeyboardAvoidingView,
@@ -10,17 +12,48 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import api from '../api/api';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import UseFont from '../hooks/useFont';
 
 const Register = () => {
+    const router = useRouter()
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
+    const handleRegister = async () => {
+        if (!email || !username || !password || !confirmPassword) {
+            Alert.alert("Error", "Please fill in all fields.");
+            return
+        }
 
+        if (password !== confirmPassword) {
+            Alert.alert("Error", "Password and confirm password do not match.");
+            return
+        }
+
+        try {
+            const res = await api.post('/register', {
+                email,
+                name: username,
+                password
+            })
+            const data = res.data
+
+            if (data.token) {
+                await secureStore.setItemAsync("jwt_token", data.token)
+                router.replace("/(tabs)/Index")
+            } else {
+                Alert.alert("Registrasi berhasil", "Silakan login");
+                router.replace("/(auth)/Login");
+            }
+        } catch (error: any) {
+            Alert.alert("Gagal", error.response?.data?.error || "Server error");
+        }
+    }
     return (
         <UseFont>
             <SafeAreaView className="flex-1 bg-white">
@@ -91,8 +124,8 @@ const Register = () => {
                             {/* FOOTER */}
                             <View className=" items-center mt-[40px] px-[24px] ">
                                 <Button
-                                    title="Login"
-                                    onPress={() => { }}
+                                    title="Register"
+                                    onPress={() => handleRegister()}
                                     styleButton="bg-[#C4E703]"
                                     icon={{}}
                                 />

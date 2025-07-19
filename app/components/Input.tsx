@@ -11,6 +11,7 @@ const Input = ({ label, placeholder, value, onchangeText, style, secureEntry = f
         </Text>
       )}
       <TextInput
+      autoCapitalize='none'
         placeholder={placeholder}
         value={value}
         onChange={onchangeText}

@@ -1,21 +1,43 @@
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import React, { useState } from 'react';
 import {
+    Alert,
     ImageBackground,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
     Text,
     TouchableWithoutFeedback,
-    View,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import api from '../api/api';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import UseFont from '../hooks/useFont';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
+
+    const handleForgotPassword = async () => {
+        if (!email) {
+            Alert.alert("Error", "Please fill in all fields.");
+            return
+        }
+        try {
+            const res = await api.post('/forgot-password', {
+                email
+            })
+            if (res.status === 200) {
+                router.push({
+                    pathname: "/(auth)/CheckEmail",
+                    params: { email }  // Kirim email ke halaman CheckEmail
+                })
+            }
+        } catch (error: any) {
+            Alert.alert("Gagal", error.response?.data?.error || "Server error");
+        }
+    };
     return (
         <UseFont>
             <SafeAreaView className="flex-1 bg-white">
@@ -65,14 +87,14 @@ const ForgotPassword = () => {
                             {/* FOOTER */}
                             <View className="mt-[12px] items-center px-[24px] pb-[30px]">
                                 <Button
-                                    title="Login"
-                                    onPress={() => { }}
+                                    title="Reset Password"
+                                    onPress={() => handleForgotPassword()}
                                     styleButton="bg-[#C4E703]"
                                     icon={{}}
                                 />
 
                                 <Text className="mt-[10px] opacity-50">
-                                  
+
                                     <Link href={"/(auth)/Login"} className="text-blue-600">Back to Login</Link>
                                 </Text>
                             </View>

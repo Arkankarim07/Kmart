@@ -1,6 +1,7 @@
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+    Alert,
     ImageBackground,
     Keyboard,
     KeyboardAvoidingView,
@@ -10,12 +11,44 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import api from '../api/api';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import UseFont from '../hooks/useFont';
 const NewPassword = () => {
     const [password, setPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const { email, otp } = useLocalSearchParams();
+    const router = useRouter()
+    const handleResetPassword = async () => {
+        if (!password || !confirmPassword) {
+            Alert.alert("Error", "Please fill in all fields.");
+            return
+        }
+        if (password.length < 6) {
+            setPasswordError('Password must be at least 6 characters.');
+            return;
+        }
+        if (password !== confirmPassword) {
+            Alert.alert("Error", "Password and confirm password do not match.");
+            return
+        }
+
+        try {
+            const res = await api.post('/reset-password', {
+                email,
+                otp,
+                new_password: password,
+            })
+
+            if (res.status === 200) {
+                router.push("/(auth)/Login")
+            }
+        } catch (error: any) {
+            Alert.alert("Gagal", error.response?.data?.error || "Server error");
+        }
+    };
     return (
         <UseFont>
             <SafeAreaView className="flex-1 bg-white">
@@ -52,16 +85,26 @@ const NewPassword = () => {
                                 </View>
 
                                 <View className="mt-[35px] gap-[39px] px-[24px]">
-                                    <Input
-                                        label="Password"
-                                        placeholder="Masukkan password kamu"
-                                        value={password}
-                                        onchangeText={setPassword}
-                                        secureEntry
-                                    />
+                                    <View>
+                                        <Input
+                                            label="Password"
+                                            placeholder="Masukkan password kamu"
+                                            value={password}
+                                            onchangeText={(text: string) => {
+                                                setPassword(text);
+                                                setPasswordError('');
+                                            }}
+                                            secureEntry
+                                        />
+                                        {
+                                            passwordError && (
+                                                <Text className="text-red-500">{passwordError}</Text>
+                                            )
+                                        }
+                                    </View>
                                     <Input
                                         label="Confirm Password"
-                                        placeholder="Masukkan email kamu"
+                                        placeholder="Konfirmasi password kamu"
                                         value={confirmPassword}
                                         onchangeText={setConfirmPassword}
                                     />
@@ -71,8 +114,8 @@ const NewPassword = () => {
                             {/* FOOTER */}
                             <View className="mt-[30px] items-center px-[24px] pb-[30px]">
                                 <Button
-                                    title="Login"
-                                    onPress={() => { }}
+                                    title="Reset Password"
+                                    onPress={() => handleResetPassword()}
                                     styleButton="bg-[#C4E703]"
                                     icon={{}}
                                 />
